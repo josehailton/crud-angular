@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Course } from '../models/course';
 import { delay } from 'rxjs';
+import { CoursePage } from '../models/coursePage';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,12 @@ export class CoursesService {
 
   private readonly API = 'api/courses';
 
-  findAll() {
-    return this.httpClient.get<Course[]>(this.API).pipe(delay(200));
+  findAll(page: number, pageSize: number) {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.httpClient.get<CoursePage>(this.API, { params }).pipe(delay(200));
   }
 
   findById(id: string) {
@@ -21,7 +26,7 @@ export class CoursesService {
   }
 
   save(record: Partial<Course>) {
-    if(record._id){
+    if (record._id) {
       return this.update(record);
     }
 

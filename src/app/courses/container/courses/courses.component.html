@@ -3,8 +3,8 @@
 
   <div class="column-flex mat-elevation-z8">
     <app-courses-list
-      *ngIf="courses$ | async as courses; else loading"
-      [courses]="courses"
+      *ngIf="coursePage$ | async as coursePage; else loading"
+      [courses]="coursePage.courses"
       (add)="onAdd()"
       (edit)="onEdit($event)"
       (delete)="onDelete($event)"

@@ -1,3 +1,4 @@
+import { CoursePage } from './../../models/coursePage';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,7 +16,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 })
 export class CoursesComponent {
 
-  courses$: Observable<Course[]> | null = null;
+  coursePage$: Observable<CoursePage> | null = null;
 
   constructor(
     private coursesService: CoursesService,
@@ -25,16 +26,16 @@ export class CoursesComponent {
     private snackBar: MatSnackBar
   ) {
 
-    this.refresh();
+    this.refresh(0, 10); // para fins de teste -- tornar dinâmico depois
 
   }
 
-  refresh() {
-    this.courses$ = this.coursesService.findAll()
+  refresh(page: number, pageSize: number) {
+     this.coursePage$ = this.coursesService.findAll(page, pageSize)
       .pipe(
         catchError(error => {
-          this.onError('Erro ao carregar cursos.')
-          return of([])
+          this.onError('Erro ao carregar cursos.');
+          return of({ courses: [], totalElements: 0, totalPages: 0 });
         })
       );
   }
@@ -51,22 +52,6 @@ export class CoursesComponent {
 
   onEdit(course: Course) {
     this.router.navigate(['edit', course._id], { relativeTo: this.route });
-  }
-
-  onDelete1(course: Course) {
-    this.coursesService.delete(course._id).subscribe(
-      () => {
-        this.refresh();
-
-        this.snackBar.open('Excluído com sucesso!', 'X',
-          {
-            duration: 3000,
-            verticalPosition: 'top',
-            horizontalPosition: 'center'
-          });
-      },
-
-      () => this.onError('Não foi possível excluir o curso!'));
   }
 
   onDelete(course: Course) {
@@ -92,7 +77,7 @@ export class CoursesComponent {
             })
           )
           .subscribe(() => {
-            this.refresh();
+            this.refresh(0, 10);
           });
       }
     });
